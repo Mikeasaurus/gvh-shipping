@@ -17,6 +17,11 @@
   total count.  The resulting count is printed at the end, but individual
   relationships are not printed since that would be hella complicated to do
   with ascii art.
+
+  If the "lists" flag is set to 1, then instead of counting individual
+  relationships, it will count possible lists of parallel relationships that
+  could exist at the same time
+  (E.g. Rosa <--> Fang <--> Naomi  and  Reed <--> Naser)
 */
 
 #include <stdio.h>
@@ -47,10 +52,12 @@ void traverse (char g[n][n], char visited[n], char i) {
 
 /*
   Internal helper method: given a potential relationship (as NxN boolean
-  matrix), determine if it's actually connected or not.
-  (graphs that are not connected don't count as a relationship).
+  matrix), determine if it's valid.
+  If counting individual relationships, check if it's actually connected or not.
+  If counting lists of parallel relationships, only constraint is that Fang and 
+  Naser can't be within the same subgroup.
 */
-int connected (char g[n][n]) {
+int isvalid (char g[n][n]) {
   // First, figure out which of the characters are actually participating in
   // this relationship (have at least one connection marked with someone else)
   char participant[n];
@@ -60,10 +67,13 @@ int connected (char g[n][n]) {
       if (g[i][j] == 1) participant[i] = 1;
     }
   }
-  // Kind of a hack, but at this point immediately exclude this graph as
-  // "disconnected" if first two characters (arbitrarily assigned as Fang and
-  // Naser) are marked as bing  participants.
-  if ((participant[0]==1) && (participant[1]==1)) return 0;
+  // If doing lists of parallel relationships, only constraint is that Fang
+  // and Naser can be reachable from the same graph.
+  if ((lists==1) && ((participant[0]==0)||(participant[1]==0))) return 1;
+  // If doing individual relationships, can't have Fang and Naser participating
+  // at the same time at all.
+  if ((lists==0) && ((participant[0]==1)&&(participant[1]==1))) return 0;
+
   // The rest of the code below will check if all participants can be reached
   // by starting from the first participant (implying the graph is connected).
   char visited[n];
@@ -74,7 +84,15 @@ int connected (char g[n][n]) {
     for (p = 0; participant[p] == 0; p++);
     traverse (g, visited, p);
   }
-  // Check if all were reached.
+  // If counting lists, and we're still in this routine, that means both Fang
+  // and Naser were in this list of relationships.
+  // Make sure they weren't in the same relationship (could be in different
+  // relationships in the list).
+  if (lists==1) {
+    return (visited[1] == 0);  // Was Naser reachable from Fang?
+  }
+  // If counting individual relationships, check if all participants were
+  // reachable
   for (int i = 0; i < n; i++) {
     if ((participant[i]==1) && (visited[i]==0)) {
       return 0;
@@ -124,7 +142,7 @@ int main (int argc, char *argv[]) {
     }
     // If we managed to make a coherent polycule (or couple), then add it to
     // the count.
-    if (connected(g)) count ++;
+    if (isvalid(g)) count ++;
   }
   // Print the total count.
   printf ("%d\n",count);
