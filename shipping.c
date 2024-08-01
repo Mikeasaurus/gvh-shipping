@@ -30,10 +30,16 @@
   Number of characters available.
   Note: the run time grows super-exponentially with number of characters.
 */
-const char n = 8;
+static const char n = 8;
+
+/*
+  Counting individual relationships or lists of mutually-exclusive
+  relationships that can exist at the same time?
+*/
+static const char lists = 0;
 
 // Shortcut for "n choose 2", needed for some looping when building matrices.
-const char n2 = (n*(n-1))/2;
+static const char n2 = (n*(n-1))/2;
 
 /*
   Internal helper method: given a potential relationship (as NxN boolean
