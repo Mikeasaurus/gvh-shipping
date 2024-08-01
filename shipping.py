@@ -1,20 +1,29 @@
-# Script for finding all possible character ships (including polycules).
+# Script for finding possible character ships including completely
+# connected polycules.  Does not include partially connected polycules
+# (where some participants are not directly in a relationship).  That
+# generalized case is way too complex for this humble Python script to manage.
+# See the C version for counting that generalized case.
 
-cast = "Fang", "Trish", "Reed", "Naser", "Naomi", "Rosa", "Sage", "Stella", "Swamp1", "Swamp2", "Swamp3", "Alvin", "Leo"
+cast = "Fang", "Trish", "Reed", "Naser", "Naomi", "Rosa", "Sage", "Stella"
 n = len(cast)
+
+# Swith to control whether we are counting individual relationships, or lists
+# of mutually-exclusive relationships that can exist at the same time.
+lists = True
 
 # Nuh uh
 def forbidden (ship):
   return "Fang" in ship and "Naser" in ship
 
-# Iterate over all possible polycules.
+# Internate helper method:
+# Iterate over all possible (fully connected) polycules.
 # Inputs:
-#     - The cast members available for the polycules
+#     - The characters available for the polycules
 #     - Number of parallel polycules to have (exact number).
 #       If unspecified, then check all numbers of parallel polycules.
 # NOTE: Does not remove duplicate entries, these need to be filtered out
 #       afterwards.
-# Returns iterations of (combo, leftover members).
+# Returns iterations of (combo, leftover characters).
 def iter_polycules (group,num_parallel=None):
   from itertools import combinations
   # If specific number of parallel ships is requested
@@ -47,10 +56,19 @@ def polycules (group):
   for ships in sorted(combos):
     yield ships
 
+# Main part of code, executed from command-line.
+# If lists = True, prints and counts lists of relationships that can be formed
+# in parallel.
+# If lists = False, only prints and counts individual relationships.
+# Assumes fully-connected polycules (everyone in polycule directly connected
+# to everyone else).
 count = 0
 for ships in polycules(cast):
+  # Are we counted lists of multiple orthogonal relationships, or just
+  # single relationships?
+  if lists is False and len(ships) > 1: continue
   count += 1
-  #print (*ships)
+  print (*ships)
 
 print ()
 print ("Total number:", count)
