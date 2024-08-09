@@ -15,7 +15,7 @@ lists = True
 def forbidden (ship):
   return "Fang" in ship and "Naser" in ship
 
-# Internate helper method:
+# Internal helper method:
 # Iterate over all possible (fully connected) polycules.
 # Inputs:
 #     - The characters available for the polycules

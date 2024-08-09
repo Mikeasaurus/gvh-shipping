@@ -61,7 +61,7 @@ void traverse (char g[n][n], char visited[n], char i) {
   matrix), determine if it's valid.
   If counting individual relationships, check if it's actually connected or not.
   If counting lists of parallel relationships, only constraint is that Fang and 
-  Naser can't be within the same subgroup.
+  Naser can't be within the same subgraph.
 */
 int isvalid (char g[n][n]) {
   // First, figure out which of the characters are actually participating in
